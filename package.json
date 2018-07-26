@@ -1,0 +1,25 @@
+{
+  "name": "liri",
+  "version": "1.0.0",
+  "description": "Request songs from spotify and get tweets from twitter",
+  "main": "LIRI.js",
+  "dependencies": {
+    "dotenv": "^6.0.0",
+    "request": "^2.87.0",
+    "twitter": "^1.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Midlu/LIRI.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Midlu/LIRI/issues"
+  },
+  "homepage": "https://github.com/Midlu/LIRI#readme"
+}
