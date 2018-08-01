@@ -1,49 +1,101 @@
-var keys = require('./keys.js');
+var keys = require("./keys.js");
 
-var fs = require("fs");
+var Twitter = require('twitter');
+var spotify = require('node-spotify-api');
+var request = require('request');
 
-var dotenv = require("dotenv").config("./.env");
-var request = require("request");
-var twitterModule = require("twitter");
-// var Spotify = require('node-spotify-api');
+var getMyTweets = function() {
+  // var spotify = new Spotify(keys.spotify);
+  var twitterClient = new Twitter(keys.twitterKeys);
 
-console.log(keys);
+  var params = { screen_name: "Kevin_Griego" };
+  twitterClient.get("statuses/user_timeline", params, function(
+    error,
+    tweets,
+    response
+  ) {
+    if (!error) {
+      console.log(tweets);
+      for(var i = 0; i<tweets.length; i++) {
+        console.log(tweets[i].created_at);
+        console.log(" ");
+        console.log(tweets[i].text);
+      }
+  }}
+)};
 
-// var spotify = new Spotify(keys.spotify);
-var twitterClient = new twitterModule(keys.twitter);
+var getMeSpotify = function(songName) {
 
-// console.log(spotify);
-console.log(twitterClient);
+  spotify.search({type: 'track', query: songName }, function(err, data) {
+    if(err) {
+      console.log("Error occurred: " + err);
+      return;
+    }
+    var songs = data.tracks.items;
+    for(var i=0; i<songs.length; i++); {
+      console.log(i);
+      console.log('artist(s): ' + songs[i].artists.map(getArtistNames));
+      console.log('song nameL ' + songs[1].name);
+      console.log('preview song: ' + songs[i].preview_url);
+      console.log('album: ' + songs[i].album.name);
+      console.log('-------------------------------------');
+    }
+  })
+}
 
-var params = {screen_name: 'Kevin_Griego'};
-twitterClient.get('statuses/user_timeline', params, function(error, tweets, response) {
-  if (!error) {
-    console.log(tweets);
+var getMeMovie = function(movieName) {
+  request('http://www.omdbapi.com/?t=' + '&y=&plot=short&r=json', function(error, response, body) {
+    if(!error && response.statusCode == 200) {
+      var jsonData = JSON.parse(body);
+
+      console.log('Title: ' + jsonData.Title);
+      console.log('Year: ' + jsonData.Year);
+      console.log('Rated: ' + jsonData.Rated);
+      console.log('IMDB Rating: ' + jsonData.imdbRating);
+      console.log('Country: ' + jsonData.Country);
+      console.log('Language: ' + jsonData.Language);
+      console.log('Plot: ' + jsonData.Plot);
+      console.log('Actors: ' + jsonData.Actors)
+      console.log('Rotten tomatoes rating: ' + jsonData.tomatoRating);
+      console.log('Rotten tomatoes URL: ' + jsonData.tomatoURL);
+    }
+  })
+}
+
+var doWhatItSays = function() {
+  fs.readFile('random.txt', 'utf8', function(err, data) {
+    if (err) throw err;
+
+    var dataArr = data.split(",");
+
+    if (dataArr.length == 2) {
+      pick(dataArr[0], dataArr[1]);
+    } else if (dataArr.length == 1) {
+      pick(dataArr[0]);
+    }
+  })
+}
+
+var pick = function(caseData, functionData) {
+  switch(caseData) {
+    case 'my-tweets' :
+      getMyTweets();
+      break;
+    case 'spotify-this-song':
+      getMeSpotify(functionData);
+      break;
+    case 'movie-this':
+      getMeMovie(functionData);
+    case 'do-what-it-says':
+      doWhatItSays();
+      break;
+    default:
+    console.log('Liri does not know that');
   }
-  console.log(response);
-});
+}
 
-// client.get("statuses/lookup", params, function(error, tweets, response) {
-//   if (error) {
-//     // console.log(error);
-//   }
+var runThis = function(argOne, argTwo) {
+  pick(argOne, argTwo);
+}
 
-  // The favorites.
-  // console.log(tweets);
-
-  // Raw response object.
-  // console.log(response);
-
-  // // trying to print response to a file to read.
-  // fs.writeFile("tweetsInfo.txt", tweets, function(err) {
-
-  //   // If the code experiences any errors it will log the error to the console.
-  //   if (err) {
-  //     return console.log(err);
-  //   }
-
-  //   // Otherwise, it will print: "movies.txt was updated!"
-  //   console.log("tweetsInfo.txt was updated!");
-
-  // });
-// });
+runThis(process.argv[2], process.argv[3]);
